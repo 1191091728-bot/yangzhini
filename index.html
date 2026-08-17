@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>养只你 · 你的目标，由它陪你完成</title>
+<meta name="description" content="上传一张你的照片，AI 为你生成专属虚拟宠物。选择目标，每日完成 AI 派发的任务，养出独一无二的它。">
+<style>
+  :root{
+    --orange:#FFA66B;
+    --orange-deep:#FF8A3D;
+    --orange-light:#FFE4D0;
+    --cream:#FFF8F0;
+    --beige:#F5E6D3;
+    --mint:#A8D8B9;
+    --mint-deep:#7DB892;
+    --ink:#2D2520;
+    --ink-soft:#6B5D54;
+    --ink-light:#9A8B82;
+    --white:#FFFFFF;
+    --shadow:0 8px 32px rgba(255,138,61,0.12);
+    --shadow-strong:0 16px 48px rgba(255,138,61,0.18);
+    --radius:24px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none;}
+  img{max-width:100%;display:block;}
+  button{font-family:inherit;}
+
+  /* ============ NAV ============ */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(255,248,240,0.85);
+    backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);
+    border-bottom:1px solid rgba(255,166,107,0.12);
+  }
+  .nav-inner{
+    max-width:1200px;margin:0 auto;padding:18px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-size:22px;font-weight:700;color:var(--ink);cursor:pointer;
+  }
+  .logo-icon{
+    width:36px;height:36px;border-radius:12px;
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;
+    box-shadow:0 4px 12px rgba(255,138,61,0.35);
+  }
+  .nav-links{display:flex;gap:36px;align-items:center;}
+  .nav-links a{
+    font-size:15px;color:var(--ink-soft);font-weight:500;
+    transition:color .2s;cursor:pointer;
+  }
+  .nav-links a:hover{color:var(--orange-deep);}
+  .nav-cta{
+    padding:10px 22px;border-radius:99px;
+    background:var(--ink);color:var(--white)!important;
+    font-weight:600;font-size:14px;
+    transition:transform .2s,box-shadow .2s;
+    border:none;cursor:pointer;
+  }
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(45,37,32,0.25);}
+
+  /* ============ HERO ============ */
+  .hero{
+    padding:140px 32px 80px;max-width:1200px;margin:0 auto;
+    display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:center;
+    min-height:90vh;
+  }
+  .hero-tag{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 14px;border-radius:99px;
+    background:rgba(255,166,107,0.12);
+    color:var(--orange-deep);
+    font-size:13px;font-weight:600;
+    margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:64px;line-height:1.1;font-weight:800;
+    color:var(--ink);margin-bottom:24px;letter-spacing:-1px;
+  }
+  .hero h1 .accent{
+    background:linear-gradient(120deg,var(--orange-deep),var(--orange));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p.lead{
+    font-size:19px;color:var(--ink-soft);margin-bottom:36px;line-height:1.7;
+    max-width:520px;
+  }
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
+  .btn-primary{
+    padding:16px 32px;border-radius:99px;
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    color:var(--white);font-weight:700;font-size:16px;
+    border:none;cursor:pointer;
+    box-shadow:0 12px 28px rgba(255,138,61,0.38);
+    transition:transform .2s,box-shadow .2s;
+    display:inline-flex;align-items:center;gap:8px;
+  }
+  .btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 36px rgba(255,138,61,0.5);}
+  .btn-primary:active{transform:translateY(-1px);}
+  .btn-secondary{
+    padding:16px 32px;border-radius:99px;
+    background:var(--white);color:var(--ink);
+    font-weight:600;font-size:16px;cursor:pointer;
+    border:1.5px solid rgba(45,37,32,0.12);
+    transition:all .2s;
+  }
+  .btn-secondary:hover{border-color:var(--ink);transform:translateY(-2px);}
+
+  /* hero illustration */
+  .hero-visual{
+    position:relative;height:520px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .blob{
+    position:absolute;border-radius:50%;
+    filter:blur(60px);opacity:0.55;z-index:0;
+  }
+  .blob-1{width:380px;height:380px;background:var(--orange);top:10%;right:5%;}
+  .blob-2{width:280px;height:280px;background:var(--mint);bottom:10%;left:5%;opacity:0.4;}
+
+  .pet-card{
+    position:relative;z-index:2;
+    width:340px;padding:36px 28px;
+    background:var(--white);border-radius:32px;
+    box-shadow:var(--shadow-strong);
+    text-align:center;
+  }
+  .pet-emoji{
+    font-size:120px;line-height:1;
+    display:inline-block;
+    animation:bounce 3s ease-in-out infinite;
+  }
+  /* 3D 渲染萌宠主视觉 */
+  .pet-3d-wrap{
+    position:relative;width:240px;height:240px;margin:0 auto 8px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .pet-3d-img{
+    position:relative;z-index:3;
+    width:240px;height:240px;
+    object-fit:cover;border-radius:50%;
+    box-shadow:0 24px 48px -12px rgba(255,138,76,0.55), 0 8px 24px rgba(0,0,0,0.08);
+    animation:bounce 4.5s ease-in-out infinite;
+    transition:transform .3s ease;
+  }
+  .pet-3d-img:hover{transform:scale(1.04) rotate(-2deg);}
+  .pet-3d-glow{
+    position:absolute;inset:-20px;z-index:1;
+    background:radial-gradient(closest-side,rgba(255,166,107,0.55),rgba(255,166,107,0));
+    filter:blur(12px);
+    animation:glow 3.6s ease-in-out infinite;
+  }
+  @keyframes glow{
+    0%,100%{transform:scale(1);opacity:0.7;}
+    50%{transform:scale(1.08);opacity:1;}
+  }
+  .pet-3d-ring{
+    position:absolute;inset:-8px;z-index:2;
+    border-radius:50%;
+    border:2px dashed rgba(255,138,76,0.55);
+    animation:spin 18s linear infinite;
+  }
+  @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+  .pet-3d-sparkle{
+    position:absolute;z-index:4;color:#FFB347;
+    font-size:20px;
+    text-shadow:0 0 12px rgba(255,166,107,0.8);
+    animation:twinkle 2.4s ease-in-out infinite;
+  }
+  .pet-3d-sparkle.s1{top:6%;left:8%;animation-delay:0s;}
+  .pet-3d-sparkle.s2{top:18%;right:4%;animation-delay:0.8s;font-size:14px;}
+  .pet-3d-sparkle.s3{bottom:10%;left:14%;animation-delay:1.6s;font-size:16px;}
+  @keyframes twinkle{
+    0%,100%{opacity:0.3;transform:scale(0.8) rotate(0deg);}
+    50%{opacity:1;transform:scale(1.2) rotate(180deg);}
+  }
+  @keyframes bounce{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-12px);}
+  }
+  .pet-name{font-size:22px;font-weight:700;margin-top:12px;}
+  .pet-bar{
+    margin-top:20px;background:var(--cream);border-radius:99px;height:10px;overflow:hidden;
+  }
+  .pet-bar-fill{
+    height:100%;width:85%;
+    background:linear-gradient(90deg,var(--orange),var(--orange-deep));
+    border-radius:99px;
+    animation:fill 2s ease-out;
+  }
+  @keyframes fill{from{width:0;}to{width:85%;}}
+  .pet-meta{
+    margin-top:14px;display:flex;justify-content:space-between;
+    font-size:13px;color:var(--ink-soft);
+  }
+  .floating-tag{
+    position:absolute;z-index:3;
+    background:var(--white);padding:10px 16px;border-radius:99px;
+    box-shadow:var(--shadow);font-size:13px;font-weight:600;
+    display:flex;align-items:center;gap:6px;
+  }
+  .ft-1{top:8%;left:-5%;animation:float 4s ease-in-out infinite;}
+  .ft-2{top:50%;right:-8%;animation:float 4s ease-in-out infinite 1.5s;}
+  .ft-3{bottom:5%;left:8%;animation:float 4s ease-in-out infinite 0.8s;}
+  @keyframes float{
+    0%,100%{transform:translateY(0);}
+    50%{transform:translateY(-10px);}
+  }
+
+  /* ============ SECTIONS COMMON ============ */
+  section{padding:100px 32px;}
+  .container{max-width:1200px;margin:0 auto;}
+  .section-tag{
+    display:inline-block;padding:6px 14px;border-radius:99px;
+    background:rgba(255,166,107,0.12);color:var(--orange-deep);
+    font-size:13px;font-weight:600;margin-bottom:18px;
+  }
+  .section-title{
+    font-size:48px;font-weight:800;color:var(--ink);
+    margin-bottom:18px;letter-spacing:-0.5px;line-height:1.15;
+  }
+  .section-subtitle{
+    font-size:18px;color:var(--ink-soft);max-width:640px;line-height:1.7;
+  }
+  .center-head{text-align:center;}
+  .center-head .section-subtitle{margin:0 auto;}
+
+  /* ============ TRY IT (核心交互体验区) ============ */
+  .try-section{
+    background:linear-gradient(180deg,var(--cream) 0%,#FFEFE0 100%);
+    position:relative;
+  }
+  .try-wrap{
+    margin-top:56px;
+    background:var(--white);border-radius:32px;
+    box-shadow:var(--shadow-strong);
+    overflow:hidden;
+    max-width:900px;margin-left:auto;margin-right:auto;
+  }
+  .stepper{
+    display:flex;justify-content:space-between;
+    padding:28px 60px;background:var(--cream);
+    border-bottom:1px solid rgba(255,166,107,0.12);
+    position:relative;
+  }
+  .stepper::before{
+    content:"";position:absolute;
+    top:50%;left:90px;right:90px;height:2px;
+    background:rgba(45,37,32,0.08);z-index:1;
+  }
+  .step-dot{
+    position:relative;z-index:2;
+    display:flex;flex-direction:column;align-items:center;gap:6px;
+    background:var(--cream);padding:0 12px;
+  }
+  .step-dot .dot{
+    width:36px;height:36px;border-radius:50%;
+    background:var(--white);border:2px solid rgba(45,37,32,0.12);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:700;color:var(--ink-light);font-size:14px;
+    transition:all .3s;
+  }
+  .step-dot.active .dot{
+    background:var(--orange);border-color:var(--orange);color:var(--white);
+    box-shadow:0 4px 12px rgba(255,138,61,0.4);
+  }
+  .step-dot.done .dot{
+    background:var(--mint);border-color:var(--mint);color:var(--white);
+  }
+  .step-dot .label{font-size:12px;color:var(--ink-light);font-weight:500;}
+  .step-dot.active .label,.step-dot.done .label{color:var(--ink);font-weight:600;}
+
+  .try-body{padding:50px 60px;min-height:480px;}
+  .try-step{display:none;animation:fadeIn .4s ease-out;}
+  .try-step.active{display:block;}
+  @keyframes fadeIn{
+    from{opacity:0;transform:translateY(10px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+  .try-step h3{font-size:30px;font-weight:800;margin-bottom:10px;}
+  .try-step .step-desc{color:var(--ink-soft);font-size:16px;margin-bottom:32px;}
+
+  /* Step 1 - 上传 */
+  .upload-zone{
+    border:2.5px dashed var(--orange);
+    border-radius:20px;padding:60px 32px;text-align:center;
+    background:rgba(255,166,107,0.05);
+    cursor:pointer;transition:all .3s;
+    position:relative;
+  }
+  .upload-zone:hover{
+    background:rgba(255,166,107,0.1);
+    border-color:var(--orange-deep);
+    transform:translateY(-2px);
+  }
+  .upload-zone.drag-over{
+    background:rgba(255,166,107,0.15);
+    border-style:solid;
+  }
+  .upload-zone .icon{font-size:64px;margin-bottom:16px;}
+  .upload-zone .title{font-size:20px;font-weight:700;margin-bottom:8px;}
+  .upload-zone .hint{color:var(--ink-light);font-size:14px;}
+  .upload-zone input[type="file"]{display:none;}
+  .privacy-note{
+    margin-top:20px;text-align:center;
+    font-size:13px;color:var(--ink-light);
+  }
+  .privacy-note span{color:var(--mint-deep);font-weight:600;}
+
+  /* Step 2 - 生成宠物 */
+  .pet-gen-area{
+    display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;
+  }
+  .uploaded-photo{
+    width:200px;height:200px;border-radius:24px;
+    background:var(--cream);
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    margin:0 auto;
+    border:4px solid var(--white);
+    position:relative;
+  }
+  .uploaded-photo img{width:100%;height:100%;object-fit:cover;}
+  .uploaded-photo-label{
+    text-align:center;font-size:13px;color:var(--ink-light);
+    margin-top:12px;
+  }
+  .pet-result{
+    text-align:center;
+    padding:32px;
+    background:linear-gradient(135deg,var(--orange-light),var(--cream));
+    border-radius:24px;
+    box-shadow:var(--shadow);
+  }
+  .pet-result .pet-emoji-big{
+    font-size:140px;line-height:1;
+    animation:bounce 2.5s ease-in-out infinite;
+  }
+  .pet-result .gen-loading{
+    font-size:16px;color:var(--ink-soft);margin-top:14px;
+  }
+  .pet-result .dots{display:inline-block;}
+  .pet-result .dots::after{
+    content:"";animation:dots 1.5s steps(4) infinite;
+  }
+  @keyframes dots{
+    0%{content:"";}25%{content:".";}50%{content:"..";}75%{content:"...";}
+  }
+  .name-input-area{margin-top:32px;}
+  .name-input-area label{
+    display:block;font-size:14px;font-weight:600;color:var(--ink-soft);
+    margin-bottom:10px;
+  }
+  .name-input{
+    width:100%;padding:16px 20px;
+    border:2px solid rgba(45,37,32,0.1);
+    border-radius:16px;font-size:16px;
+    transition:border-color .2s;
+    background:var(--white);
+    font-family:inherit;
+  }
+  .name-input:focus{
+    outline:none;border-color:var(--orange);
+    box-shadow:0 0 0 4px rgba(255,166,107,0.15);
+  }
+
+  /* Step 3 - 选目标 */
+  .goal-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  }
+  .goal-card{
+    padding:32px 24px;background:var(--white);
+    border:2.5px solid rgba(45,37,32,0.08);
+    border-radius:20px;cursor:pointer;
+    text-align:center;transition:all .25s;
+    position:relative;
+  }
+  .goal-card:hover{
+    transform:translateY(-4px);
+    border-color:rgba(255,166,107,0.4);
+    box-shadow:var(--shadow);
+  }
+  .goal-card.selected{
+    border-color:var(--orange);
+    background:linear-gradient(180deg,rgba(255,166,107,0.08),var(--white));
+    box-shadow:0 12px 32px rgba(255,138,61,0.2);
+  }
+  .goal-card.selected::after{
+    content:"✓";position:absolute;top:12px;right:12px;
+    width:28px;height:28px;border-radius:50%;
+    background:var(--orange);color:var(--white);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:14px;
+  }
+  .goal-card .goal-emoji{font-size:48px;margin-bottom:12px;}
+  .goal-card h4{font-size:18px;font-weight:700;margin-bottom:6px;}
+  .goal-card p{color:var(--ink-light);font-size:13px;line-height:1.6;}
+
+  /* Step 4 - 主屏 */
+  .home-screen{
+    display:grid;grid-template-columns:auto 1fr;gap:36px;
+  }
+  .pet-display{
+    width:280px;
+    padding:32px 24px;
+    background:linear-gradient(180deg,var(--cream),var(--orange-light));
+    border-radius:24px;
+    text-align:center;
+    box-shadow:var(--shadow);
+  }
+  .pet-display .pet-emoji-medium{
+    font-size:110px;line-height:1;
+    animation:bounce 3s ease-in-out infinite;
+  }
+  .pet-display .pet-display-name{
+    font-size:20px;font-weight:700;margin-top:10px;
+  }
+  .pet-display .pet-display-mode{
+    font-size:13px;color:var(--ink-light);margin-top:4px;
+  }
+  .energy-bar{
+    margin-top:18px;background:var(--white);
+    border-radius:99px;height:14px;overflow:hidden;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .energy-bar-fill{
+    height:100%;width:0%;
+    background:linear-gradient(90deg,var(--orange),var(--orange-deep));
+    border-radius:99px;
+    transition:width .6s cubic-bezier(.4,1.4,.6,1);
+  }
+  .energy-text{
+    margin-top:10px;font-size:13px;font-weight:600;color:var(--ink-soft);
+  }
+  .energy-text .v{color:var(--orange-deep);font-weight:800;}
+
+  .task-area h4{font-size:18px;font-weight:700;margin-bottom:14px;}
+  .task-list{display:flex;flex-direction:column;gap:10px;}
+  .task-item{
+    display:flex;align-items:center;gap:14px;
+    padding:14px 18px;background:var(--white);
+    border:1.5px solid rgba(45,37,32,0.06);
+    border-radius:14px;cursor:pointer;
+    transition:all .2s;
+  }
+  .task-item:hover{border-color:var(--orange);background:rgba(255,166,107,0.04);}
+  .task-item.done{
+    background:rgba(168,216,185,0.12);
+    border-color:rgba(168,216,185,0.4);
+  }
+  .task-item.done .task-text{
+    text-decoration:line-through;color:var(--ink-light);
+  }
+  .task-check{
+    width:24px;height:24px;border-radius:50%;
+    border:2px solid rgba(45,37,32,0.2);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;transition:all .2s;
+    color:transparent;font-weight:800;font-size:13px;
+  }
+  .task-item.done .task-check{
+    background:var(--mint-deep);border-color:var(--mint-deep);
+    color:var(--white);
+  }
+  .task-text{flex:1;font-size:15px;font-weight:500;}
+  .task-energy{
+    font-size:13px;font-weight:700;color:var(--orange-deep);
+    background:rgba(255,166,107,0.12);
+    padding:4px 10px;border-radius:99px;
+  }
+
+  /* energy fly animation */
+  .energy-fly{
+    position:fixed;font-size:22px;font-weight:800;color:var(--orange-deep);
+    pointer-events:none;z-index:9999;
+    animation:flyUp 1s ease-out forwards;
+  }
+  @keyframes flyUp{
+    0%{opacity:1;transform:translateY(0) scale(1);}
+    100%{opacity:0;transform:translateY(-80px) scale(1.3);}
+  }
+
+  /* navigation buttons */
+  .step-nav{
+    margin-top:36px;display:flex;justify-content:space-between;align-items:center;
+    padding-top:24px;border-top:1px solid rgba(45,37,32,0.08);
+  }
+  .step-nav .left{font-size:13px;color:var(--ink-light);}
+  .step-nav .right{display:flex;gap:12px;}
+  .btn-back{
+    padding:12px 24px;border-radius:99px;
+    background:var(--white);border:1.5px solid rgba(45,37,32,0.12);
+    color:var(--ink-soft);font-weight:600;cursor:pointer;
+    transition:all .2s;
+  }
+  .btn-back:hover{border-color:var(--ink-soft);color:var(--ink);}
+  .btn-next{
+    padding:12px 28px;border-radius:99px;
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    color:var(--white);font-weight:700;border:none;cursor:pointer;
+    box-shadow:0 6px 16px rgba(255,138,61,0.3);
+    transition:all .2s;
+  }
+  .btn-next:hover:not(:disabled){
+    transform:translateY(-2px);box-shadow:0 12px 24px rgba(255,138,61,0.4);
+  }
+  .btn-next:disabled{
+    background:rgba(45,37,32,0.12);color:var(--ink-light);
+    cursor:not-allowed;box-shadow:none;
+  }
+  .toast{
+    position:fixed;bottom:32px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:var(--white);
+    padding:14px 24px;border-radius:99px;
+    font-size:14px;font-weight:600;
+    box-shadow:0 12px 32px rgba(0,0,0,0.3);
+    z-index:10000;
+    opacity:0;pointer-events:none;
+    transition:opacity .3s,transform .3s;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-10px);}
+
+  /* finish celebrate */
+  .celebrate-banner{
+    margin-top:24px;padding:20px 24px;
+    background:linear-gradient(135deg,var(--mint),var(--mint-deep));
+    color:var(--white);border-radius:16px;
+    display:flex;align-items:center;gap:14px;
+    animation:slideIn .5s ease-out;
+  }
+  @keyframes slideIn{
+    from{opacity:0;transform:translateX(-20px);}
+    to{opacity:1;transform:translateX(0);}
+  }
+  .celebrate-banner .ce-emoji{font-size:32px;}
+  .celebrate-banner .ce-text strong{display:block;font-size:17px;margin-bottom:2px;}
+  .celebrate-banner .ce-text span{font-size:13px;opacity:0.9;}
+
+  /* ============ HOW (3 STEPS) ============ */
+  .steps-grid{
+    margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:28px;
+  }
+  .step-card{
+    padding:36px 28px;background:var(--white);border-radius:var(--radius);
+    box-shadow:var(--shadow);position:relative;
+    transition:transform .3s,box-shadow .3s;
+  }
+  .step-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-strong);}
+  .step-num{
+    width:48px;height:48px;border-radius:14px;
+    background:linear-gradient(135deg,var(--orange-light),var(--orange));
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;font-weight:800;color:var(--white);margin-bottom:20px;
+    box-shadow:0 6px 16px rgba(255,138,61,0.3);
+  }
+  .step-card h3{font-size:22px;font-weight:700;margin-bottom:12px;}
+  .step-card p{color:var(--ink-soft);font-size:15px;line-height:1.7;}
+
+  /* ============ MODES ============ */
+  .modes-bg{background:linear-gradient(180deg,var(--cream) 0%,#FFEFE0 100%);}
+  .modes-grid{
+    margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:24px;
+  }
+  .mode-card{
+    padding:40px 32px;border-radius:var(--radius);
+    background:var(--white);box-shadow:var(--shadow);
+    border-top:5px solid;
+    transition:transform .3s;
+  }
+  .mode-card:hover{transform:translateY(-6px);}
+  .mode-card.m1{border-color:#FF8A3D;}
+  .mode-card.m2{border-color:#7DB892;}
+  .mode-card.m3{border-color:#B89AE8;}
+  .mode-emoji{font-size:48px;margin-bottom:16px;display:block;}
+  .mode-card h3{font-size:24px;font-weight:700;margin-bottom:10px;}
+  .mode-desc{color:var(--ink-soft);margin-bottom:20px;line-height:1.7;}
+  .mode-list{list-style:none;}
+  .mode-list li{
+    padding:10px 0;border-top:1px dashed rgba(45,37,32,0.08);
+    font-size:14px;color:var(--ink-soft);
+    display:flex;align-items:center;gap:10px;
+  }
+  .mode-list li:before{content:"✓";color:var(--mint-deep);font-weight:700;}
+
+  /* ============ UI SHOWCASE ============ */
+  .ui-showcase{background:var(--cream);}
+  .ui-grid{
+    margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;
+  }
+  .ui-item{
+    background:var(--white);border-radius:28px;padding:18px;
+    box-shadow:var(--shadow);
+    transition:transform .3s,box-shadow .3s;
+  }
+  .ui-item:hover{transform:translateY(-8px) rotate(-1deg);box-shadow:var(--shadow-strong);}
+  .ui-item img{
+    border-radius:18px;width:100%;
+    aspect-ratio:9/16;object-fit:cover;
+  }
+  .ui-caption{
+    margin-top:14px;text-align:center;
+  }
+  .ui-caption strong{display:block;font-size:15px;color:var(--ink);margin-bottom:2px;}
+  .ui-caption span{font-size:12px;color:var(--ink-light);}
+
+  /* ============ FOOTER CTA ============ */
+  .final-cta{
+    background:linear-gradient(135deg,var(--orange),var(--orange-deep));
+    color:var(--white);text-align:center;
+  }
+  .final-cta .section-title{color:var(--white);font-size:48px;}
+  .final-cta p{
+    font-size:18px;color:rgba(255,255,255,0.9);max-width:560px;
+    margin:0 auto 32px;line-height:1.7;
+  }
+  .final-cta .btn-final{
+    padding:18px 44px;border-radius:99px;
+    background:var(--white);color:var(--orange-deep);
+    font-weight:800;font-size:17px;border:none;cursor:pointer;
+    box-shadow:0 12px 32px rgba(0,0,0,0.15);
+    transition:transform .2s,box-shadow .2s;
+  }
+  .final-cta .btn-final:hover{
+    transform:translateY(-3px);
+    box-shadow:0 18px 40px rgba(0,0,0,0.22);
+  }
+
+  /* ============ FOOTER ============ */
+  footer{
+    padding:32px;background:var(--ink);color:rgba(255,248,240,0.5);
+    text-align:center;font-size:13px;
+  }
+  footer .by{color:var(--orange);font-weight:600;}
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:960px){
+    .hero{grid-template-columns:1fr;padding-top:120px;text-align:center;}
+    .hero h1{font-size:44px;}
+    .hero p.lead{margin-left:auto;margin-right:auto;}
+    .hero-ctas{justify-content:center;}
+    .hero-visual{height:420px;}
+    .nav-links{display:none;}
+    .section-title{font-size:34px;}
+    .final-cta .section-title{font-size:34px;}
+    section{padding:70px 20px;}
+    .steps-grid,.modes-grid,.ui-grid{grid-template-columns:1fr;}
+    .ui-grid{grid-template-columns:repeat(2,1fr);}
+    .try-body{padding:32px 24px;}
+    .stepper{padding:20px 16px;}
+    .stepper::before{left:36px;right:36px;}
+    .step-dot .label{display:none;}
+    .pet-gen-area{grid-template-columns:1fr;gap:24px;}
+    .home-screen{grid-template-columns:1fr;}
+    .pet-display{width:100%;}
+    .goal-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<!-- =========== NAV =========== -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <div class="logo-icon">🐾</div>
+      <span>养只你</span>
+    </div>
+    <div class="nav-links">
+      <a onclick="document.getElementById('try').scrollIntoView({behavior:'smooth'})">立刻试试</a>
+      <a onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">怎么玩</a>
+      <a onclick="document.getElementById('modes').scrollIntoView({behavior:'smooth'})">三种模式</a>
+      <a onclick="document.getElementById('ui').scrollIntoView({behavior:'smooth'})">产品界面</a>
+      <button class="nav-cta" onclick="document.getElementById('try').scrollIntoView({behavior:'smooth'})">开始陪伴 →</button>
+    </div>
+  </div>
+</nav>
+
+<!-- =========== HERO =========== -->
+<section class="hero">
+  <div>
+    <div class="hero-tag">🐣 AI 陪伴养成 · 让自律变得温柔</div>
+    <h1>你的目标，<br>由<span class="accent">「它」</span>陪你完成。</h1>
+    <p class="lead">
+      上传一张你的照片，AI 为你生成独一无二的虚拟宠物。<br>
+      选一个目标，每天完成 AI 派的任务，养出更可爱的它。<br>
+      减肥、备考、自律——这一次，你不再是一个人。
+    </p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="document.getElementById('try').scrollIntoView({behavior:'smooth'})">立刻拥有我的小宠物 →</button>
+      <button class="btn-secondary" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">看看怎么玩</button>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="floating-tag ft-1">🔥 连续 23 天</div>
+    <div class="floating-tag ft-2">⚡ 今日 +50</div>
+    <div class="floating-tag ft-3">🎀 解锁新装扮</div>
+    <div class="pet-card" id="petCard">
+      <div class="pet-3d-wrap">
+        <div class="pet-3d-glow"></div>
+        <div class="pet-3d-ring"></div>
+        <div class="pet-3d-img" style="background:linear-gradient(135deg,#FFA66B 0%,#FF8A3D 40%,#FFE4D0 75%,#FFF8F0 100%);" alt="3D 渲染的虚拟萌宠 - 小橘"></div>
+        <div class="pet-3d-sparkle s1">✦</div>
+        <div class="pet-3d-sparkle s2">✦</div>
+        <div class="pet-3d-sparkle s3">✦</div>
+      </div>
+      <div class="pet-name">嘿哈土豆 的小橘</div>
+      <div class="pet-bar"><div class="pet-bar-fill"></div></div>
+      <div class="pet-meta">
+        <span>能量值 85/100</span>
+        <span>Lv.7</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== TRY IT (核心交互) =========== -->
+<section id="try" class="try-section">
+  <div class="container">
+    <div class="center-head">
+      <div class="section-tag">✨ 立刻试试</div>
+      <h2 class="section-title">3 分钟，养出你的专属小宠物</h2>
+      <p class="section-subtitle">
+        全部在浏览器里完成，照片不上传服务器，完全本地运行。
+      </p>
+    </div>
+
+    <div class="try-wrap">
+      <!-- Stepper -->
+      <div class="stepper">
+        <div class="step-dot active" data-step="1"><div class="dot">1</div><div class="label">上传照片</div></div>
+        <div class="step-dot" data-step="2"><div class="dot">2</div><div class="label">起个名字</div></div>
+        <div class="step-dot" data-step="3"><div class="dot">3</div><div class="label">选择目标</div></div>
+        <div class="step-dot" data-step="4"><div class="dot">4</div><div class="label">开始打卡</div></div>
+      </div>
+
+      <div class="try-body">
+
+        <!-- Step 1: 上传 -->
+        <div class="try-step active" data-step="1">
+          <h3>📸 第一步：上传你的照片</h3>
+          <p class="step-desc">AI 会提取你的关键特征（发型、眼镜、神态等），生成一只「有你气质」的卡通宠物。</p>
+          <div class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" accept="image/*">
+            <div class="icon">📷</div>
+            <div class="title">点击或拖拽上传照片</div>
+            <div class="hint">支持 JPG / PNG · 建议正脸或半身照</div>
+          </div>
+          <div class="privacy-note">🔒 你的照片<span>仅在浏览器本地处理</span>，不会上传任何服务器</div>
+          <div class="step-nav">
+            <div class="left">第 1 / 4 步</div>
+            <div class="right">
+              <button class="btn-next" id="step1Next" disabled>下一步 →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: 起名字 -->
+        <div class="try-step" data-step="2">
+          <h3>✏️ 第二步：给它起个名字</h3>
+          <p class="step-desc">这是你的专属小可爱，未来 100 天它都会陪着你。</p>
+          <div class="pet-gen-area">
+            <div>
+              <div class="uploaded-photo">
+                <img id="userPhoto" src="" alt="你的照片">
+              </div>
+              <div class="uploaded-photo-label">这是你 ↑</div>
+            </div>
+            <div class="pet-result" id="petResult">
+              <div class="pet-emoji-big">🐹</div>
+              <div class="gen-loading"><span id="genStatus">AI 正在为你生成专属宠物</span><span class="dots"></span></div>
+            </div>
+          </div>
+          <div class="name-input-area" id="nameInputArea" style="display:none;">
+            <label for="petNameInput">给你的小宠物起个名字 ✨</label>
+            <input type="text" class="name-input" id="petNameInput" placeholder="比如：小橘、糯米、阿团..." maxlength="12">
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="goToStep(1)">← 上一步</button>
+            <div class="right">
+              <button class="btn-next" id="step2Next" disabled>下一步 →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: 选目标 -->
+        <div class="try-step" data-step="3">
+          <h3>🎯 第三步：选一个你想坚持的目标</h3>
+          <p class="step-desc">AI 会根据你的目标，自动生成每日任务清单。</p>
+          <div class="goal-grid">
+            <div class="goal-card" data-goal="diet">
+              <div class="goal-emoji">🥗</div>
+              <h4>减肥模式</h4>
+              <p>把"健康行为"变成可勾选的小事，告别卡路里数字焦虑</p>
+            </div>
+            <div class="goal-card" data-goal="study">
+              <div class="goal-emoji">📚</div>
+              <h4>学习模式</h4>
+              <p>番茄钟里宠物陪你学习，结束撒花，让自律变期待</p>
+            </div>
+            <div class="goal-card" data-goal="custom">
+              <div class="goal-emoji">🌿</div>
+              <h4>自由模式</h4>
+              <p>戒糖、写日记、冥想……任何你想坚持的事</p>
+            </div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="goToStep(2)">← 上一步</button>
+            <div class="right">
+              <button class="btn-next" id="step3Next" disabled>开始陪伴 →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: 主屏 -->
+        <div class="try-step" data-step="4">
+          <h3>🎉 你的小宠物已就位！</h3>
+          <p class="step-desc">点击下方任务即可打卡，每完成一项 <b style="color:var(--orange-deep);">能量条会增加</b>，攒够能量可以解锁服装。</p>
+          <div class="home-screen">
+            <div class="pet-display">
+              <div class="pet-emoji-medium">🐹</div>
+              <div class="pet-display-name" id="finalPetName">小橘</div>
+              <div class="pet-display-mode" id="finalMode">减肥模式 · 第 1 天</div>
+              <div class="energy-bar"><div class="energy-bar-fill" id="energyFill"></div></div>
+              <div class="energy-text">能量 <span class="v" id="energyValue">0</span> / <span id="energyMax">60</span></div>
+            </div>
+            <div class="task-area">
+              <h4>📋 今日任务清单</h4>
+              <div class="task-list" id="taskList"></div>
+              <div id="celebrate"></div>
+            </div>
+          </div>
+          <div class="step-nav">
+            <button class="btn-back" onclick="goToStep(3)">← 重新选目标</button>
+            <div class="right">
+              <button class="btn-next" onclick="restartFlow()">🔄 再养一只</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== HOW IT WORKS =========== -->
+<section id="how">
+  <div class="container">
+    <div class="center-head">
+      <div class="section-tag">🎯 三步上手</div>
+      <h2 class="section-title">从一张照片，到每天打卡的小可爱</h2>
+      <p class="section-subtitle">
+        把繁琐的目标拆解、追踪、复盘交给 AI，你只需要点击「打卡」，看着它一天天长大。
+      </p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3>📸 上传你的照片</h3>
+        <p>AI 提取你的关键特征（发型、眼镜、穿搭），<b>卡通化映射</b>到一只专属宠物身上——不是 deepfake 你本人，而是一只「有你气质的小可爱」。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3>🎯 选一个目标</h3>
+        <p>减肥、考研、戒掉熬夜、健身打卡……告诉 AI 你想成为什么样的人，AI 会为你拆解成<b>每日 3-5 个可执行的小任务</b>。</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3>✅ 每天完成任务</h3>
+        <p>点亮今日清单，宠物就会获得能量、解锁新装扮、升级形态。<b>错过一天它只是会打瞌睡</b>，等你回来继续陪你——绝不剥夺你已有的成就。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== THREE MODES =========== -->
+<section id="modes" class="modes-bg">
+  <div class="container">
+    <div class="center-head">
+      <div class="section-tag">✨ 一只宠物，三种陪伴</div>
+      <h2 class="section-title">不止于减肥，每一种自律都值得被陪伴</h2>
+      <p class="section-subtitle">
+        切换模式时，AI 会根据你的新目标重新派发任务清单。宠物始终陪着你。
+      </p>
+    </div>
+    <div class="modes-grid">
+      <div class="mode-card m1">
+        <span class="mode-emoji">🥗</span>
+        <h3>减肥模式</h3>
+        <p class="mode-desc">不再纠结卡路里数字，把「健康行为」变成可勾选的小事。</p>
+        <ul class="mode-list">
+          <li>早餐吃健康餐</li>
+          <li>喝够 8 杯水</li>
+          <li>运动 30 分钟</li>
+          <li>不吃宵夜</li>
+          <li>11 点前睡觉</li>
+        </ul>
+      </div>
+      <div class="mode-card m2">
+        <span class="mode-emoji">📚</span>
+        <h3>学习模式</h3>
+        <p class="mode-desc">番茄钟里宠物在你旁边陪学，结束撒花，让自律变成期待。</p>
+        <ul class="mode-list">
+          <li>4 个番茄钟（25 min × 4）</li>
+          <li>复习昨日错题</li>
+          <li>整理今日笔记</li>
+          <li>背 50 个单词</li>
+          <li>预习明日内容</li>
+        </ul>
+      </div>
+      <div class="mode-card m3">
+        <span class="mode-emoji">🌿</span>
+        <h3>自由模式</h3>
+        <p class="mode-desc">告诉 AI 你的目标，它会帮你把大事拆成每天可完成的小事。</p>
+        <ul class="mode-list">
+          <li>戒掉熬夜 / 戒糖</li>
+          <li>跑步备战马拉松</li>
+          <li>每日写作 500 字</li>
+          <li>冥想正念练习</li>
+          <li>……任何你想坚持的事</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== UI SHOWCASE =========== -->
+<section id="ui" class="ui-showcase">
+  <div class="container">
+    <div class="center-head">
+      <div class="section-tag">📱 移动端 App</div>
+      <h2 class="section-title">同款体验，装进口袋</h2>
+      <p class="section-subtitle">
+        奶油橘配色 + 圆润字体 + 手绘插画感，让「自律」第一次看起来这么治愈。
+      </p>
+    </div>
+    <div class="ui-grid">
+      <div class="ui-item">
+        <img src="https://www.coze.cn/s/VV1ajvBPPZw/" alt="App 首页 - 宠物主屏">
+        <div class="ui-caption">
+          <strong>① 首页 · 一键打卡</strong>
+          <span>点击宠物即触发当日打卡</span>
+        </div>
+      </div>
+      <div class="ui-item">
+        <img src="https://www.coze.cn/s/Upbf60ftRqY/" alt="今日任务 - AI 派发清单">
+        <div class="ui-caption">
+          <strong>② 任务清单 · AI 派发</strong>
+          <span>根据目标动态生成每日任务</span>
+        </div>
+      </div>
+      <div class="ui-item">
+        <img src="https://www.coze.cn/s/WhPEtko5PZs/" alt="番茄钟 - 宠物陪学">
+        <div class="ui-caption">
+          <strong>③ 番茄钟 · 陪我学习</strong>
+          <span>专注时宠物坐在你身旁</span>
+        </div>
+      </div>
+      <div class="ui-item">
+        <img src="https://www.coze.cn/s/VPiM9Ythmic/" alt="衣橱 - 服装兑换">
+        <div class="ui-caption">
+          <strong>④ 衣橱 · 装扮兑换</strong>
+          <span>能量解锁限定装扮</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== FINAL CTA =========== -->
+<section class="final-cta">
+  <div class="container">
+    <h2 class="section-title">现在，去拥有它吧 🐾</h2>
+    <p>这一次，把"坚持"这件事，交给一只小可爱。<br>它不会评判你，只会陪着你。</p>
+    <button class="btn-final" onclick="document.getElementById('try').scrollIntoView({behavior:'smooth'})">立刻试试 →</button>
+  </div>
+</section>
+
+<footer>
+  © 2026 养只你 · 由 <span class="by">嘿哈土豆</span> 设计 · 海南大学
+</footer>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // =========================================
+  // STATE
+  // =========================================
+  const state = {
+    step: 1,
+    photoDataUrl: null,
+    petName: '',
+    goal: null,
+    energy: 0,
+    maxEnergy: 0,
+    tasks: []
+  };
+
+  const PET_EMOJIS = ['🐹','🐰','🐻','🐼','🐨','🐯','🦊','🐶','🐱'];
+  let currentPetEmoji = '🐹';
+
+  const GOALS = {
+    diet: {
+      name: '减肥模式',
+      emoji: '🥗',
+      tasks: [
+        { id: 1, text: '早餐吃健康餐', energy: 10 },
+        { id: 2, text: '喝够 8 杯水', energy: 10 },
+        { id: 3, text: '运动 30 分钟', energy: 15 },
+        { id: 4, text: '不吃宵夜', energy: 10 },
+        { id: 5, text: '11 点前睡觉', energy: 15 }
+      ]
+    },
+    study: {
+      name: '学习模式',
+      emoji: '📚',
+      tasks: [
+        { id: 1, text: '完成 4 个番茄钟', energy: 20 },
+        { id: 2, text: '复习昨日错题', energy: 10 },
+        { id: 3, text: '整理今日笔记', energy: 10 },
+        { id: 4, text: '背 50 个单词', energy: 10 },
+        { id: 5, text: '预习明日内容', energy: 10 }
+      ]
+    },
+    custom: {
+      name: '自由模式',
+      emoji: '🌿',
+      tasks: [
+        { id: 1, text: '写日记 / 复盘今日', energy: 10 },
+        { id: 2, text: '阅读 30 分钟', energy: 15 },
+        { id: 3, text: '冥想 10 分钟', energy: 10 },
+        { id: 4, text: '与一位朋友联系', energy: 10 },
+        { id: 5, text: '早睡早起', energy: 15 }
+      ]
+    }
+  };
+
+  // =========================================
+  // STEP NAVIGATION
+  // =========================================
+  function goToStep(n) {
+    state.step = n;
+    document.querySelectorAll('.try-step').forEach(el => {
+      el.classList.toggle('active', parseInt(el.dataset.step) === n);
+    });
+    document.querySelectorAll('.step-dot').forEach(el => {
+      const s = parseInt(el.dataset.step);
+      el.classList.toggle('active', s === n);
+      el.classList.toggle('done', s < n);
+    });
+    // smooth scroll to top of try wrap
+    setTimeout(() => {
+      document.querySelector('.try-wrap').scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 100);
+  }
+
+  // =========================================
+  // STEP 1: UPLOAD
+  // =========================================
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+  const step1Next = document.getElementById('step1Next');
+
+  uploadZone.addEventListener('click', () => fileInput.click());
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleFile(e.target.files[0]);
+  });
+
+  function handleFile(file) {
+    if (!file.type.startsWith('image/')) {
+      showToast('请上传图片文件 🖼️');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('图片大小请控制在 10MB 内');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      state.photoDataUrl = e.target.result;
+      uploadZone.querySelector('.icon').textContent = '✅';
+      uploadZone.querySelector('.title').textContent = '已上传，点击下一步';
+      uploadZone.querySelector('.hint').textContent = file.name;
+      step1Next.disabled = false;
+      showToast('照片上传成功 ✨');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  step1Next.addEventListener('click', () => {
+    document.getElementById('userPhoto').src = state.photoDataUrl;
+    // 随机选个宠物 emoji
+    currentPetEmoji = PET_EMOJIS[Math.floor(Math.random() * PET_EMOJIS.length)];
+    goToStep(2);
+    // 模拟生成
+    const petResult = document.getElementById('petResult');
+    const petEmojiBig = petResult.querySelector('.pet-emoji-big');
+    const genStatus = document.getElementById('genStatus');
+    petEmojiBig.style.opacity = '0';
+    petEmojiBig.textContent = currentPetEmoji;
+
+    let progress = 0;
+    const stages = [
+      'AI 正在提取你的特征',
+      '生成卡通化映射',
+      '调整宠物表情',
+      '完成最后润色'
+    ];
+    const interval = setInterval(() => {
+      genStatus.textContent = stages[progress];
+      progress++;
+      if (progress >= stages.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          petResult.querySelector('.gen-loading').innerHTML = '<b style="color:var(--orange-deep);">✨ 你的专属小宠物已生成！</b>';
+          petEmojiBig.style.transition = 'opacity .5s';
+          petEmojiBig.style.opacity = '1';
+          document.getElementById('nameInputArea').style.display = 'block';
+          document.getElementById('petNameInput').focus();
+        }, 500);
+      }
+    }, 700);
+  });
+
+  // =========================================
+  // STEP 2: NAME
+  // =========================================
+  const petNameInput = document.getElementById('petNameInput');
+  const step2Next = document.getElementById('step2Next');
+
+  petNameInput.addEventListener('input', e => {
+    const v = e.target.value.trim();
+    state.petName = v;
+    step2Next.disabled = v.length === 0;
+  });
+
+  step2Next.addEventListener('click', () => goToStep(3));
+
+  // =========================================
+  // STEP 3: GOAL
+  // =========================================
+  const goalCards = document.querySelectorAll('.goal-card');
+  const step3Next = document.getElementById('step3Next');
+
+  goalCards.forEach(card => {
+    card.addEventListener('click', () => {
+      goalCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      state.goal = card.dataset.goal;
+      step3Next.disabled = false;
+    });
+  });
+
+  step3Next.addEventListener('click', () => {
+    initHomeScreen();
+    goToStep(4);
+  });
+
+  // =========================================
+  // STEP 4: HOME SCREEN
+  // =========================================
+  function initHomeScreen() {
+    const goal = GOALS[state.goal];
+    state.tasks = goal.tasks.map(t => ({ ...t, done:false }));
+    state.energy = 0;
+    state.maxEnergy = state.tasks.reduce((s,t) => s + t.energy, 0);
+
+    document.querySelector('.pet-emoji-medium').textContent = currentPetEmoji;
+    document.getElementById('finalPetName').textContent = state.petName || '小可爱';
+    document.getElementById('finalMode').textContent = goal.name + ' · 第 1 天';
+    document.getElementById('energyMax').textContent = state.maxEnergy;
+    document.getElementById('energyValue').textContent = '0';
+    document.getElementById('energyFill').style.width = '0%';
+    document.getElementById('celebrate').innerHTML = '';
+
+    renderTaskList();
+  }
+
+  function renderTaskList() {
+    const list = document.getElementById('taskList');
+    list.innerHTML = '';
+    state.tasks.forEach(task => {
+      const item = document.createElement('div');
+      item.className = 'task-item' + (task.done ? ' done' : '');
+      item.innerHTML = `
+        <div class="task-check">✓</div>
+        <div class="task-text">${task.text}</div>
+        <div class="task-energy">+${task.energy}⚡</div>
+      `;
+      item.addEventListener('click', e => toggleTask(task.id, e));
+      list.appendChild(item);
+    });
+  }
+
+  function toggleTask(id, event) {
+    const task = state.tasks.find(t => t.id === id);
+    if (task.done) return; // 不允许取消（保持积极反馈）
+
+    task.done = true;
+    state.energy += task.energy;
+    if (state.energy > state.maxEnergy) state.energy = state.maxEnergy;
+
+    // 更新 UI
+    const fill = document.getElementById('energyFill');
+    fill.style.width = (state.energy / state.maxEnergy * 100) + '%';
+    document.getElementById('energyValue').textContent = state.energy;
+
+    // 飞起 +10 动画
+    if (event) {
+      const fly = document.createElement('div');
+      fly.className = 'energy-fly';
+      fly.textContent = `+${task.energy}⚡`;
+      fly.style.left = (event.clientX) + 'px';
+      fly.style.top = (event.clientY - 20) + 'px';
+      document.body.appendChild(fly);
+      setTimeout(() => fly.remove(), 1000);
+    }
+
+    renderTaskList();
+
+    // 检查是否全部完成
+    if (state.tasks.every(t => t.done)) {
+      showCelebrate();
+    } else {
+      const remain = state.tasks.filter(t => !t.done).length;
+      showToast(`太棒了！还有 ${remain} 项任务 ✨`);
+    }
+  }
+
+  function showCelebrate() {
+    const c = document.getElementById('celebrate');
+    c.innerHTML = `
+      <div class="celebrate-banner">
+        <div class="ce-emoji">🎉</div>
+        <div class="ce-text">
+          <strong>今日全部完成！</strong>
+          <span>${state.petName || '小可爱'} 解锁了「彩虹围巾」装扮 · 连续打卡 +1 天</span>
+        </div>
+      </div>
+    `;
+    showToast('🎊 完美的一天，宠物超开心！');
+  }
+
+  function restartFlow() {
+    state.step = 1;
+    state.photoDataUrl = null;
+    state.petName = '';
+    state.goal = null;
+    state.energy = 0;
+    state.tasks = [];
+    fileInput.value = '';
+    petNameInput.value = '';
+    uploadZone.querySelector('.icon').textContent = '📷';
+    uploadZone.querySelector('.title').textContent = '点击或拖拽上传照片';
+    uploadZone.querySelector('.hint').textContent = '支持 JPG / PNG · 建议正脸或半身照';
+    step1Next.disabled = true;
+    step2Next.disabled = true;
+    step3Next.disabled = true;
+    goalCards.forEach(c => c.classList.remove('selected'));
+    document.getElementById('nameInputArea').style.display = 'none';
+    // reset gen status
+    document.getElementById('petResult').querySelector('.gen-loading').innerHTML = '<span id="genStatus">AI 正在为你生成专属宠物</span><span class="dots"></span>';
+    goToStep(1);
+  }
+
+  // =========================================
+  // TOAST
+  // =========================================
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+  }
+</script>
+
+</body>
+</html>
